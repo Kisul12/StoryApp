@@ -1,2 +1,2 @@
-APP_URL=https://storyappkisul.netlify.app/
+APP_URL= https://kisulstoryapp.netlify.app/
 MAP_SERVICE_API_KEY=<api_key>
