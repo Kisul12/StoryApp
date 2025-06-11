@@ -1,6 +1,6 @@
 import API from '../../data/api.js';
 import Map from '../../utils/map.js';
-import { putStories, getAllStories } from '../../utils/indexeddb-helper.js';
+// import { putStories, getAllStories } from '../../utils/indexeddb-helper.js';
 
 function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -50,11 +50,6 @@ export default class HomePresenter {
       if (storiesDataFromAPI && Array.isArray(storiesDataFromAPI) && storiesDataFromAPI.length > 0) {
         this.onStoriesLoaded(storiesDataFromAPI);
         this.addMarkersToMap(storiesDataFromAPI);
-        try {
-          await putStories(storiesDataFromAPI);
-        } catch (dbError) {
-          console.error('[HomePresenter] Failed to save stories from API to IndexedDB:', dbError);
-        }
       } else if (storiesDataFromAPI && Array.isArray(storiesDataFromAPI) && storiesDataFromAPI.length === 0) {
         this.onStoriesLoaded([]);
         if (this.view && typeof this.view.showNoStoriesMessage === 'function') {

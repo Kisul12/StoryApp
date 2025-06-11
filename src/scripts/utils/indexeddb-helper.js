@@ -1,80 +1,37 @@
-const DB_NAME = 'story-app-db';
-const DB_VERSION = 1;
-const OBJECT_STORE_NAME = 'stories';
+import { openDB } from 'idb'; // REKOMENDASI: Gunakan library 'idb' agar lebih ringkas
+import CONFIG from './../config.js';
 
-const openDB = () => {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
+// Kode di bawah ini menggunakan 'idb' library yang lebih modern dan direkomendasikan.
+const { DATABASE_NAME, DATABASE_VERSION, OBJECT_STORE_NAME } = CONFIG;
 
-    request.onupgradeneeded = (event) => {
-      const db = event.target.result;
-      if (!db.objectStoreNames.contains(OBJECT_STORE_NAME)) {
-        db.createObjectStore(OBJECT_STORE_NAME, { keyPath: 'id' });
-      }
-    };
+const dbPromise = openDB(DATABASE_NAME, DATABASE_VERSION, {
+  upgrade(database) {
+    database.createObjectStore(OBJECT_STORE_NAME, { keyPath: 'id' });
+  },
+});
 
-    request.onsuccess = (event) => {
-      resolve(event.target.result);
-    };
-
-    request.onerror = (event) => {
-      reject(event.target.error);
-    };
-  });
-};
-
-const putStories = async (stories) => {
-  try {
-    const db = await openDB();
-    const transaction = db.transaction(OBJECT_STORE_NAME, 'readwrite');
-    const store = transaction.objectStore(OBJECT_STORE_NAME);
-    const itemsToPut = Array.isArray(stories) ? stories : [stories];
-
-    for (const story of itemsToPut) {
-      if (story && typeof story.id !== 'undefined') {
-        store.put(story);
-      }
+const FavoriteStoryIdb = {
+  async getStory(id) {
+    if (!id) {
+      return undefined;
     }
-
-    return new Promise((resolve, reject) => {
-      transaction.oncomplete = () => resolve();
-      transaction.onerror = (event) => reject(event.target.error);
-    });
-  } catch (error) {
-    return Promise.reject(error);
-  }
+    return (await dbPromise).get(OBJECT_STORE_NAME, id);
+  },
+  async getAllStories() {
+    return (await dbPromise).getAll(OBJECT_STORE_NAME);
+  },
+  async putStory(story) {
+    if (!story || !story.id) {
+      return undefined;
+    }
+    return (await dbPromise).put(OBJECT_STORE_NAME, story);
+  },
+  async deleteStory(id) {
+    if (!id) {
+      return undefined;
+    }
+    return (await dbPromise).delete(OBJECT_STORE_NAME, id);
+  },
 };
 
-const getAllStories = async () => {
-  try {
-    const db = await openDB();
-    const transaction = db.transaction(OBJECT_STORE_NAME, 'readonly');
-    const store = transaction.objectStore(OBJECT_STORE_NAME);
-    const stories = await store.getAll();
-
-    return new Promise((resolve, reject) => {
-      transaction.oncomplete = () => resolve(stories || []);
-      transaction.onerror = (event) => reject(event.target.error);
-    });
-  } catch (error) {
-    return Promise.reject(error);
-  }
-};
-
-const clearAllStories = async () => {
-  try {
-    const db = await openDB();
-    const transaction = db.transaction(OBJECT_STORE_NAME, 'readwrite');
-    const store = transaction.objectStore(OBJECT_STORE_NAME);
-    store.clear();
-
-    return new Promise((resolve, reject) => {
-      transaction.oncomplete = () => resolve();
-      transaction.onerror = (event) => reject(event.target.error);
-    });
-  } catch (error) {
-    return Promise.reject(error);
-  }
-};
-
-export { openDB, OBJECT_STORE_NAME, putStories, getAllStories, clearAllStories };
+export default FavoriteStoryIdb;

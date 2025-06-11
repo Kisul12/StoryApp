@@ -1,7 +1,7 @@
 // src/scripts/views/pages/home-page.js (atau path yang sesuai)
 
 import Loading from '../views/components/loading.js';
-import { clearAllStories } from '../../utils/indexeddb-helper.js';
+// import { clearAllStories } from '../../utils/indexeddb-helper.js';
 
 export default class HomePage {
   #presenter = null;
@@ -35,7 +35,6 @@ export default class HomePage {
             <div style="display: flex; justify-content: center; gap: 20px;">
               ${authButtons}
             </div>
-            <button id="clearOfflineStoriesBtn" style="background-color: #f44336; color: white; border: none; padding: 10px 20px; font-size: 1rem; cursor: pointer; border-radius: 5px; margin-top: 10px;">Hapus Cerita Offline</button>
             <button id="enableNotificationsBtn" style="background-color: #4CAF50; color: white; border: none; padding: 10px 20px; font-size: 1rem; cursor: pointer; border-radius: 5px; margin-top: 10px;">Aktifkan Notifikasi Cerita</button>
           </div>
         </header>
@@ -145,33 +144,6 @@ export default class HomePage {
       confirmLogoutBtn.addEventListener('click', () => {
         this.handleLogout();
       });
-    }
-
-    const clearOfflineBtn = document.getElementById('clearOfflineStoriesBtn');
-    if (clearOfflineBtn) {
-      clearOfflineBtn.addEventListener('click', async () => {
-        console.log('[HomePage] Tombol HAPUS DATA OFFLINE DIKLIK!');
-        if (confirm('Apakah Anda yakin ingin menghapus semua cerita yang tersimpan secara offline? Data di server tidak akan terpengaruh.')) {
-          console.log('[HomePage] Clear button confirmed. Attempting to clear IndexedDB...');
-          try {
-            await clearAllStories();
-            console.log('[HomePage] clearAllStories() promise resolved. Data should be cleared.');
-            alert('Semua cerita offline berhasil dihapus!');
-            
-            if (this.#presenter && typeof this.#presenter.loadStories === 'function') {
-              console.log('[HomePage] Now attempting to reload stories after clearing IndexedDB...');
-              await this.#presenter.loadStories();
-            }
-          } catch (error) {
-            console.error('[HomePage] Failed to clear offline stories:', error);
-            alert('Gagal menghapus cerita offline.');
-          }
-        } else {
-          console.log('[HomePage] Clear offline stories cancelled by user.');
-        }
-      });
-    } else {
-      console.error('[HomePage] Tombol clearOfflineStoriesBtn TIDAK DITEMUKAN di DOM!');
     }
 
     const enableNotificationsBtn = document.getElementById('enableNotificationsBtn');

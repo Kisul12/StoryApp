@@ -1,7 +1,6 @@
 import '../styles/styles.css';
 import 'leaflet/dist/leaflet.css';
 
-import { openDB } from './utils/indexeddb-helper.js';
 import App from './pages/app.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -41,12 +40,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   } else {
     console.log('Service Worker is not supported by this browser.');
-  }
-
-  try {
-    await openDB();
-    console.log('IndexedDB is ready to use (database initialized).');
-  } catch (error) {
-    console.error('Failed to initialize IndexedDB:', error);
   }
 });
